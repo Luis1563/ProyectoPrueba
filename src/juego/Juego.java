@@ -11,18 +11,20 @@ public class Juego extends InterfaceJuego
 {
 	// El objeto Entorno que controla el tiempo y otros
 	private Entorno entorno;
-    private Princesa elizabeth;
+    private Princesa princesa;
+	private Enemigo enemigo;
+	private Castillo castillo;
+	private Proyectil proyectil;
     private Isla[] islas;
-	
 	// Variables y métodos propios de cada grupo
 	// ...
 	
 	Juego()
 	{
 		// Inicializa el objeto entorno
-		this.entorno = new Entorno(this, "Proyecto para TP", 1280, 720);
-        this.elizabeth = new Princesa(640, 360, 20, 50);
-        this.islas = inicializarIslas();
+		this.entorno = new Entorno(this, "Proyecto para TP", 800, 600);
+        princesa = new Princesa(640, 360, 20, 50);
+        islas = inicializarIslas();
         
 		
 		// Inicializar lo que haga falta para el juego
@@ -33,7 +35,7 @@ public class Juego extends InterfaceJuego
 	}
 
 	private Isla[] inicializarIslas() {
-		Isla[] misIslas = new Isla[20]; // Ejemplo con 10 islas
+		//Isla[] misIslas = new Isla[20]; // Ejemplo con 10 islas
         
         // 1. Islas de piso (fijas)
 		Isla[] misIslas1 = new Isla[20]; // Aumentamos el tamaño para tener más plataformas
@@ -41,7 +43,7 @@ public class Juego extends InterfaceJuego
 
 	    // 1. ISLAS DE PISO (Para que el jugador no caiga al inicio)
 	    for (int i = 0; i < 5; i++) {
-	        misIslas1[indice] = new Isla(i * 250, 580, 200, i);
+	        misIslas1[indice] = new Isla(i * 250, 580, 200, 20);
 	        indice++;
 	    }
 
@@ -62,7 +64,7 @@ public class Juego extends InterfaceJuego
 	                // Agregamos una pequeña variación en X para que no sea una línea perfecta
 	                double variacionX = (Math.random() * 50) - 25; 
 	                
-	                misIslas1[indice] = new Isla(avanceX + variacionX, alturaFija, 120, variacionX);
+	                misIslas1[indice] = new Isla(avanceX + variacionX, alturaFija, 120, 20);
 	                indice++;
 	            }
 	        }
@@ -82,19 +84,49 @@ public class Juego extends InterfaceJuego
 	 */
 	public void tick()
 	{
-		elizabeth.dibujar(entorno);
+		// Procesamiento de un instante de tiempo
+		// ...
+		princesa.dibujar(entorno);
+
+		//princesa.moverAbajo(); // Simula la gravedad
+
 		for (Isla isla : islas) {
-	        if (isla != null) { 
+			if (isla != null) { 
 	            // Cada isla sabe cómo dibujarse a sí misma
-	            isla.dibujar(this.entorno); 
-	            
-	            // Aprovechamos el bucle para verificar si Elizabeth está apoyada
-	           // if (elizabeth.estaApoyadaEn(isla)) {
-	               // elizabeth.detenerCaida(isla.getY());
-	            }
-	        }
-	    }
-	
+				isla.dibujar(this.entorno); 
+	        // Aprovechamos el bucle para verificar si Elizabeth está apoyada
+	        // if (elizabeth.estaApoyadaEn(isla)) {
+	        // elizabeth.detenerCaida(isla.getY());
+			}
+		}
+
+		//movimiento de la princesa
+
+		if(entorno.estaPresionada(entorno.TECLA_IZQUIERDA) && princesa.getX() - princesa.getAncho()/2 > 0) { //limitamos el movimiento para que no se salga de la pantalla
+			if(princesa.colisionaPorIzquierda(islas)==false) {
+				princesa.moverIzquierda();							
+			}
+		}
+		if(entorno.estaPresionada(entorno.TECLA_DERECHA) && princesa.getX() + princesa.getAncho()/2 < entorno.ancho()) {
+			if(princesa.colisionaPorDerecha(islas)==false) {
+				princesa.moverDerecha();							
+			}
+		}
+		if (entorno.estaPresionada(entorno.TECLA_ABAJO) && princesa.getY() + princesa.getAlto()/2 < entorno.alto()) {
+			if (!princesa.colisionaPorAbajo(islas)) {
+				princesa.moverAbajo();
+			}
+		}
+		
+		if (entorno.estaPresionada(entorno.TECLA_ARRIBA) && princesa.getY() - princesa.getAlto()/2 > 0) {
+			if (!princesa.colisionaPorArriba(islas)) {
+				princesa.saltar();
+			}
+		}
+
+
+
+	}
 		
 		// Procesamiento de un instante de tiempo
 		// ...
