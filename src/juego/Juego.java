@@ -12,9 +12,9 @@ public class Juego extends InterfaceJuego
 	// El objeto Entorno que controla el tiempo y otros
 	private Entorno entorno;
     private Princesa princesa;
-	private Enemigo enemigo;
-	private Castillo castillo;
-	private Proyectil proyectil;
+	//private Enemigo enemigo;
+	//private Castillo castillo;
+	//private Proyectil proyectil;
     private Isla[] islas;
 	// Variables y métodos propios de cada grupo
 	// ...
@@ -22,7 +22,7 @@ public class Juego extends InterfaceJuego
 	Juego()
 	{
 		// Inicializa el objeto entorno
-		this.entorno = new Entorno(this, "Proyecto para TP", 800, 600);
+		this.entorno = new Entorno(this, "Proyecto para TP", 1280, 720);
         princesa = new Princesa(640, 360, 20, 50);
         islas = inicializarIslas();
         
@@ -36,44 +36,43 @@ public class Juego extends InterfaceJuego
 
 	private Isla[] inicializarIslas() {
 		//Isla[] misIslas = new Isla[20]; // Ejemplo con 10 islas
-        
         // 1. Islas de piso (fijas)
-		Isla[] misIslas1 = new Isla[20]; // Aumentamos el tamaño para tener más plataformas
-	    int indice = 0;
+		Isla[] pisoIslas = new Isla[20]; // Aumentamos el tamaño para tener más plataformas
+		Isla[] islasFlotatnes = new Isla[40]; // Islas flotantes adicionales
+		int columna = 0;
 
-	    // 1. ISLAS DE PISO (Para que el jugador no caiga al inicio)
-	    for (int i = 0; i < 5; i++) {
-	        misIslas1[indice] = new Isla(i * 250, 580, 200, 20);
-	        indice++;
-	    }
+		//primero generamos el piso fijo
+		for (int i = 0; i < pisoIslas.length; i++) {
+
+	        	pisoIslas[i] = new Isla(i * 250, entorno.alto(), 200, 20);
+				columna++;
+		}
 
 	    // 2. GENERACIÓN POR "COLUMNAS" (Evita superposición)
 	    double avanceX = 600; // Empezamos después del piso inicial
-	    double distanciaEntreColumnas = 300; 
-	    
-	    while (indice < misIslas1.length) {
-	        // Decidimos cuántas islas habrá en esta coordenada X (2 o 3)
-	        int cantidadEnEstaLinea = (int)(Math.random() * 2) + 2; // Da 2 o 3
+		double distanciaEntreColumnas = 300; 
 
-	        for (int i = 0; i < cantidadEnEstaLinea; i++) {
-	            if (indice < misIslas1.length) {
+		while (columna < pisoIslas.length) {
+	        //Decidimos cuántas islas habrá en esta coordenada X (2 o 3)
+	        int cantidadEnEstaColumna = (int)(Math.random() * 2) + 2; // Da 2 o 3
+
+			for (int i = 0; i < cantidadEnEstaColumna; i++) {
+				if (columna < pisoIslas.length) {
 	                // Niveles de altura fijos para que no se superpongan verticalmente
 	                // Nivel 0: 450px, Nivel 1: 300px, Nivel 2: 150px
 	                double alturaFija = 450 - (i * 150); 
-	                
+
 	                // Agregamos una pequeña variación en X para que no sea una línea perfecta
 	                double variacionX = (Math.random() * 50) - 25; 
-	                
-	                misIslas1[indice] = new Isla(avanceX + variacionX, alturaFija, 120, 20);
-	                indice++;
-	            }
-	        }
-	        
+
+					pisoIslas[columna] = new Isla(avanceX + variacionX, alturaFija, 120, 20);
+					columna++;
+				}
+			}
 	        // Avanzamos en X para la siguiente "tanda" de islas
-	        avanceX += distanciaEntreColumnas;
-	    }
-	    
-	    return misIslas1;
+			avanceX += distanciaEntreColumnas;
+		}
+		return pisoIslas;
 	}
 
 	/**
@@ -94,9 +93,9 @@ public class Juego extends InterfaceJuego
 			if (isla != null) { 
 	            // Cada isla sabe cómo dibujarse a sí misma
 				isla.dibujar(entorno); 
-	        // Aprovechamos el bucle para verificar si Elizabeth está apoyada
-	        // if (elizabeth.estaApoyadaEn(isla)) {
-	        // elizabeth.detenerCaida(isla.getY());
+	        // Aprovechamos el bucle para verificar si la princesa está apoyada
+	        // if (princesa.estaApoyadaEn(isla)) {
+	        // princesa.detenerCaida(isla.getY());
 			}
 		}
 
