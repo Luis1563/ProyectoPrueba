@@ -11,7 +11,7 @@ public class Juego extends InterfaceJuego
 {
 	// El objeto Entorno que controla el tiempo y otros
 	private Entorno entorno;
-    private Princesa elizabeth;
+
     private Isla[] islas;
 	
 	// Variables y métodos propios de cada grupo
@@ -21,7 +21,6 @@ public class Juego extends InterfaceJuego
 	{
 		// Inicializa el objeto entorno
 		this.entorno = new Entorno(this, "Proyecto para TP", 1280, 720);
-        this.elizabeth = new Princesa(640, 360, 20, 50);
         this.islas = inicializarIslas();
         
 		
@@ -82,7 +81,7 @@ public class Juego extends InterfaceJuego
 	 */
 	public void tick()
 	{
-		elizabeth.dibujar(entorno);
+	
 		for (Isla isla : islas) {
 	        if (isla != null) { 
 	            // Cada isla sabe cómo dibujarse a sí misma
@@ -94,7 +93,6 @@ public class Juego extends InterfaceJuego
 	            }
 	        }
 	    }
-	
 		
 		// Procesamiento de un instante de tiempo
 		// ...
