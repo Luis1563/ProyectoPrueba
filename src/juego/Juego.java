@@ -93,7 +93,7 @@ public class Juego extends InterfaceJuego
 		for (Isla isla : islas) {
 			if (isla != null) { 
 	            // Cada isla sabe cómo dibujarse a sí misma
-				isla.dibujar(this.entorno); 
+				isla.dibujar(entorno); 
 	        // Aprovechamos el bucle para verificar si Elizabeth está apoyada
 	        // if (elizabeth.estaApoyadaEn(isla)) {
 	        // elizabeth.detenerCaida(isla.getY());
