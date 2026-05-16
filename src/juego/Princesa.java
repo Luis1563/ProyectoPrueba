@@ -43,7 +43,8 @@ public class Princesa {
 
 	public boolean colisionaPorIzquierda(Isla[] islas) {
 		
-		for (Isla isla : islas) {
+		for (int i = 0; i < islas.length; i++) {
+            Isla isla = islas[i];
 			if (isla != null && bordeIzquierdo() <= isla.bordeDerecho() && bordeDerecho() > isla.bordeDerecho()) {
 				if (bordeInferior() > isla.bordeSuperior() && bordeSuperior() < isla.bordeInferior()) {
 					return true;				
@@ -55,7 +56,8 @@ public class Princesa {
 	
 	public boolean colisionaPorDerecha(Isla[] islas) {
 		
-		for (Isla isla : islas) {
+		for (int i = 0; i < islas.length; i++) {
+            Isla isla = islas[i];
 			if (isla != null && bordeDerecho() >= isla.bordeIzquierdo() && bordeIzquierdo() < isla.bordeIzquierdo()) {
 				if (bordeInferior() > isla.bordeSuperior() && bordeSuperior() < isla.bordeInferior()) {
 					return true;
@@ -67,7 +69,8 @@ public class Princesa {
 
 	public boolean colisionaPorAbajo(Isla[] islas) {
 		
-		for (Isla isla : islas) {
+		for (int i = 0; i < islas.length; i++) {
+            Isla isla = islas[i];
 			if (isla != null && bordeInferior() >= isla.bordeSuperior() && bordeInferior() < isla.bordeInferior()) {
 				if (bordeDerecho() > isla.bordeIzquierdo() && bordeIzquierdo() < isla.bordeDerecho()) {
 					return true;
@@ -78,7 +81,8 @@ public class Princesa {
 	}
 
 	public boolean colisionaPorArriba(Isla[] islas) {
-		for (Isla isla : islas) {
+		for (int i = 0; i < islas.length; i++) {
+            Isla isla = islas[i];
 			if (isla != null && bordeSuperior() <= isla.bordeInferior() && bordeSuperior() > isla.bordeSuperior()) {
 				if (bordeDerecho() > isla.bordeIzquierdo() && bordeIzquierdo() < isla.bordeDerecho()) {
 					return true;

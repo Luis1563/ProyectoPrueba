@@ -35,44 +35,45 @@ public class Juego extends InterfaceJuego
 	}
 
 	private Isla[] inicializarIslas() {
-		//Isla[] misIslas = new Isla[20]; // Ejemplo con 10 islas
+		Isla[] misIslas = new Isla[20]; // Ejemplo con 10 islas
+        
         // 1. Islas de piso (fijas)
-		Isla[] pisoIslas = new Isla[20]; // Aumentamos el tamaño para tener más plataformas
-		Isla[] islasFlotatnes = new Isla[40]; // Islas flotantes adicionales
-		int columna = 0;
+		Isla[] misIslas1 = new Isla[20]; // Aumentamos el tamaño para tener más plataformas
+	    int indice = 0;
 
-		//primero generamos el piso fijo
-		for (int i = 0; i < pisoIslas.length; i++) {
-
-	        	pisoIslas[i] = new Isla(i * 250, entorno.alto(), 200, 20);
-				columna++;
-		}
+	    // 1. ISLAS DE PISO (Para que el jugador no caiga al inicio)
+	    for (int i = 0; i < 6; i++) {
+	        misIslas1[indice] = new Isla(i * 250, entorno.alto() - 10, 200, 20);
+	        indice++;
+	    }
 
 	    // 2. GENERACIÓN POR "COLUMNAS" (Evita superposición)
 	    double avanceX = 600; // Empezamos después del piso inicial
-		double distanciaEntreColumnas = 300; 
+	    double distanciaEntreColumnas = 300; 
+	    
+	    while (indice < misIslas1.length) {
+	        // Decidimos cuántas islas habrá en esta coordenada X (2 o 3)
+	        int cantidadEnEstaLinea = (int)(Math.random() * 2) + 2; // Da 2 o 3
 
-		while (columna < pisoIslas.length) {
-	        //Decidimos cuántas islas habrá en esta coordenada X (2 o 3)
-	        int cantidadEnEstaColumna = (int)(Math.random() * 2) + 2; // Da 2 o 3
-
-			for (int i = 0; i < cantidadEnEstaColumna; i++) {
-				if (columna < pisoIslas.length) {
+	        for (int i = 0; i < cantidadEnEstaLinea; i++) {
+	            if (indice < misIslas1.length) {
 	                // Niveles de altura fijos para que no se superpongan verticalmente
 	                // Nivel 0: 450px, Nivel 1: 300px, Nivel 2: 150px
 	                double alturaFija = 450 - (i * 150); 
-
+	                
 	                // Agregamos una pequeña variación en X para que no sea una línea perfecta
 	                double variacionX = (Math.random() * 50) - 25; 
-
-					pisoIslas[columna] = new Isla(avanceX + variacionX, alturaFija, 120, 20);
-					columna++;
-				}
-			}
+	                
+	                misIslas1[indice] = new Isla(avanceX + variacionX, alturaFija, 120, 20);
+	                indice++;
+	            }
+	        }
+	        
 	        // Avanzamos en X para la siguiente "tanda" de islas
-			avanceX += distanciaEntreColumnas;
-		}
-		return pisoIslas;
+	        avanceX += distanciaEntreColumnas;
+	    }
+	    
+	    return misIslas1;
 	}
 
 	/**
@@ -89,10 +90,10 @@ public class Juego extends InterfaceJuego
 
 		//princesa.moverAbajo(); // Simula la gravedad
 
-		for (Isla isla : islas) {
-			if (isla != null) { 
+		for (int i = 0; i < islas.length; i++) {
+			if (islas[i] != null) { 
 	            // Cada isla sabe cómo dibujarse a sí misma
-				isla.dibujar(entorno); 
+				islas[i].dibujar(entorno); 
 	        // Aprovechamos el bucle para verificar si la princesa está apoyada
 	        // if (princesa.estaApoyadaEn(isla)) {
 	        // princesa.detenerCaida(isla.getY());
