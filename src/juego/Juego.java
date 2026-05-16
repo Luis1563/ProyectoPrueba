@@ -14,7 +14,7 @@ public class Juego extends InterfaceJuego
     private Princesa princesa;
 	//private Enemigo enemigo;
 	//private Castillo castillo;
-	//private Proyectil proyectil;
+	private Proyectil proyectil;
     private Isla[] islas;
 	// Variables y métodos propios de cada grupo
 	// ...
@@ -23,10 +23,11 @@ public class Juego extends InterfaceJuego
 	{
 		// Inicializa el objeto entorno
 		this.entorno = new Entorno(this, "Proyecto para TP", 1280, 720);
-        princesa = new Princesa(640, 360, 20, 50);
+        //princesa = new Princesa(640, 360, 20, 50);
+		princesa = new Princesa(640, 360, 30, 50);
         islas = inicializarIslas();
-        
-		
+
+		proyectil = null; // No hay proyectil activo al inicio
 		// Inicializar lo que haga falta para el juego
 		// ...
 
@@ -48,8 +49,8 @@ public class Juego extends InterfaceJuego
 	    }
 
 	    // 2. GENERACIÓN POR "COLUMNAS" (Evita superposición)
-	    double avanceX = 600; // Empezamos después del piso inicial
-	    double distanciaEntreColumnas = 300; 
+	    double avanceX = entorno.ancho() / 2; // Empezamos después del piso inicial
+	    double distanciaEntreColumnas = 220; 
 	    
 	    while (indice < misIslas1.length) {
 	        // Decidimos cuántas islas habrá en esta coordenada X (2 o 3)
@@ -59,10 +60,10 @@ public class Juego extends InterfaceJuego
 	            if (indice < misIslas1.length) {
 	                // Niveles de altura fijos para que no se superpongan verticalmente
 	                // Nivel 0: 450px, Nivel 1: 300px, Nivel 2: 150px
-	                double alturaFija = 450 - (i * 150); 
+	                double alturaFija = 475 - (i * 150); 
 	                
 	                // Agregamos una pequeña variación en X para que no sea una línea perfecta
-	                double variacionX = (Math.random() * 50) - 25; 
+	                double variacionX = (Math.random() * 50) - 500; 
 	                
 	                misIslas1[indice] = new Isla(avanceX + variacionX, alturaFija, 120, 20);
 	                indice++;
@@ -87,44 +88,67 @@ public class Juego extends InterfaceJuego
 		// Procesamiento de un instante de tiempo
 		// ...
 		princesa.dibujar(entorno);
-
-		//princesa.moverAbajo(); // Simula la gravedad
-
+		// física (gravedad y caída) con límite inferior de pantalla
+		princesa.actualizarFisica(islas, entorno.alto());
+		// Dibujar princesa
+		// Dibujar islas
 		for (int i = 0; i < islas.length; i++) {
 			if (islas[i] != null) { 
 	            // Cada isla sabe cómo dibujarse a sí misma
 				islas[i].dibujar(entorno); 
-	        // Aprovechamos el bucle para verificar si la princesa está apoyada
-	        // if (princesa.estaApoyadaEn(isla)) {
-	        // princesa.detenerCaida(isla.getY());
 			}
 		}
 
 		//movimiento de la princesa
 
 		if(entorno.estaPresionada(entorno.TECLA_IZQUIERDA) && princesa.getX() - princesa.getAncho()/2 > 0) { //limitamos el movimiento para que no se salga de la pantalla
-			if(princesa.colisionaPorIzquierda(islas)==false) {
-				princesa.moverIzquierda();							
+			//if (princesa.colisionaPorIzquierda(islas)) {
+						
+			if (princesa.puedeMover(-5, 0, islas)) {
+				princesa.moverIzquierda();
 			}
 		}
 		if(entorno.estaPresionada(entorno.TECLA_DERECHA) && princesa.getX() + princesa.getAncho()/2 < entorno.ancho()) {
-			if(princesa.colisionaPorDerecha(islas)==false) {
-				princesa.moverDerecha();							
+			//if (princesa.colisionaPorDerecha(islas)) {
+			if (princesa.puedeMover(5, 0, islas)) {
+				princesa.moverDerecha();
 			}
 		}
-		if (entorno.estaPresionada(entorno.TECLA_ABAJO) && princesa.getY() + princesa.getAlto()/2 < entorno.alto()) {
-			if (!princesa.colisionaPorAbajo(islas)) {
-				princesa.moverAbajo();
-			}
-		}
+		//if (entorno.estaPresionada(entorno.TECLA_ABAJO) && princesa.getY() + princesa.getAlto()/2 < entorno.alto()) {
+			//if (princesa.colisionaPorAbajo(islas)) {
+			//if (princesa.puedeMover(0, 5, islas)) {
+				//princesa.moverAbajo();
+			//}
+		//}
 		
-		if (entorno.estaPresionada(entorno.TECLA_ARRIBA) && princesa.getY() - princesa.getAlto()/2 > 0) {
-			if (!princesa.colisionaPorArriba(islas)) {
-				princesa.saltar();
-			}
+		//if (entorno.estaPresionada(entorno.TECLA_ARRIBA) && princesa.getY() - princesa.getAlto()/2 > 0) {
+			//if (princesa.colisionaPorArriba(islas)) {
+			//if (princesa.puedeMover(0, -5, islas)) {
+				//princesa.saltar();
+				//princesa.moverArriba();
+			//} 
+		//}
+		
+		// Salto: solo salta si está apoyado
+		if (entorno.estaPresionada(entorno.TECLA_ARRIBA) && princesa.estaApoyado(islas)) {
+			princesa.saltar();
 		}
 
+		// disparo con botón izquierdo solo si no hay proyectil activo
+		if (entorno.mousePresente() && entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO) && proyectil == null) {
+			double mouseX = entorno.mouseX();
+			double mouseY = entorno.mouseY();
+			proyectil = new Proyectil(princesa.getX(), princesa.getY(), 10, 10); //empieza en la misma x e y que la princesa
+			proyectil.dispararHacia(mouseX, mouseY); //dispara hacia la dirección del mouse
+		}
 
+		if (proyectil != null) { //si no es null (está activo), lo movemos y dibujamos
+			proyectil.mover();
+			proyectil.dibujar(entorno);
+			if (proyectil.estaFuera(entorno.ancho(), entorno.alto())) { // si sale de la pantalla, lo eliminamos y se vuelve null
+				proyectil = null;
+			}
+		}
 
 	}
 		
