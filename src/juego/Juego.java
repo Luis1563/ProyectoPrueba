@@ -87,9 +87,22 @@ public class Juego extends InterfaceJuego
 	{
 		// Procesamiento de un instante de tiempo
 		// ...
-		princesa.dibujar(entorno);
+		
+		if(princesa != null) {
+			princesa.dibujar(entorno);
+			princesa.actualizarFisica(islas, entorno.alto());
+		}
 		// física (gravedad y caída) con límite inferior de pantalla
-		princesa.actualizarFisica(islas, entorno.alto());
+		if (princesa != null) {
+			if (princesa.bordeSuperior() > entorno.alto()) {
+				//la princesa cayó al vacío, la reiniciamos al medio
+				princesa = null;
+			}
+		}
+		if(princesa==null) {
+			princesa = new Princesa(entorno.ancho() / 2, entorno.alto() / 2, 30, 50);
+			princesa.dibujar(entorno);
+		}
 		// Dibujar princesa
 		// Dibujar islas
 		for (int i = 0; i < islas.length; i++) {
@@ -150,6 +163,8 @@ public class Juego extends InterfaceJuego
 			}
 		}
 
+		
+		
 	}
 		
 		// Procesamiento de un instante de tiempo
