@@ -88,7 +88,7 @@ public class Juego extends InterfaceJuego
 		// Procesamiento de un instante de tiempo
 		// ...
 		
-		if(princesa != null) {
+		if(princesa != null /* && juegoPerdido == false */) {
 			princesa.dibujar(entorno);
 			princesa.actualizarFisica(islas, entorno.alto());
 		}
@@ -97,6 +97,12 @@ public class Juego extends InterfaceJuego
 			if (princesa.bordeSuperior() > entorno.alto()) {
 				//la princesa cayó al vacío, la reiniciamos al medio
 				princesa = null;
+				//vidas --;
+				/*if (vidas == 0) {
+					//game over
+					pantallaGameOver.dibujar(etnoro);
+				}
+				*/
 			}
 		}
 		if(princesa==null) {
