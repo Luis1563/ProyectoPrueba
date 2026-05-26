@@ -67,4 +67,8 @@ public class Isla {
 		this.alto = alto;
 	}
 
+	public void mover(double desplazamiento) {
+		this.x += desplazamiento;
+	}
+
 }

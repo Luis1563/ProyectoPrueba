@@ -9,9 +9,14 @@ import entorno.Herramientas;
 public class Princesa {
     private double x, y;
     private double ancho, alto;
-    private double velocidadY = 0;
-    private static final double gravedad = 0.5;
-    private static final double VelocidadMaximaDeCaida = 8;
+    private double velocidadY;
+	private double velocidadX;
+    private double velocidadDesplazamiento;
+    private double gravedad;
+    private double VelocidadMaximaDeCaida;
+
+	private Proyectil proyectil;
+	private Vida[] vidas;
     //private Image imagen;
     
     
@@ -21,6 +26,12 @@ public class Princesa {
 		this.ancho = ancho;
 		this.alto = alto;
 		this.velocidadY = 0;
+		this.velocidadX = 0;
+		this.velocidadDesplazamiento = 5;
+		this.gravedad = 0.5;
+		this.VelocidadMaximaDeCaida = 8;
+		this.proyectil = null; // No hay proyectil activo al inicio
+		this.vidas = new Vida[]{new Vida(50, 50, 100, 20)}; // Crear una instancia de Vida
 		//this.imagen = imagen;
 	}
 
@@ -29,11 +40,11 @@ public class Princesa {
 	}
 
 	public void moverIzquierda() {
-		this.x = this.x -5;
+		this.x = this.x -(velocidadDesplazamiento);
 	}
 	
 	public void moverDerecha() {
-		this.x = this.x +5;
+		this.x = this.x +velocidadDesplazamiento;
 	}
 	
     /*public void moverAbajo() {
@@ -48,6 +59,11 @@ public class Princesa {
 	}
 	
 
+	public void disparar(int mouseX, int mouseY) {
+		double deltaX = mouseX - this.x;
+		double deltaY = mouseY - this.y;
+		this.proyectil = new Proyectil(this.x, this.y, 8, deltaX, deltaY); // Crea un nuevo proyectil en la posición de la princesa
+	}
 
 /*	public boolean colisionaPorIzquierda(Isla[] islas) {
 		
@@ -135,7 +151,7 @@ public class Princesa {
     }
 
     // Comprueba si la princesa puede moverse por x e y antes de moverla
-    public boolean puedeMover(double x, double y, Isla[] islas) {
+    public boolean puedeMover(double x, double y, Isla[] islas) { 
         double izquierda = (this.x + x) - this.ancho / 2;
         double derecha = (this.x + x) + this.ancho / 2;
         double arriba = (this.y + y) - this.alto / 2;
@@ -187,6 +203,12 @@ public class Princesa {
 			velocidadY = 0;
 		}
 	}
+
+
+	public static void dibujarVidas (Entorno entorno, Vida vidas) {
+
+		vidas.dibujar(entorno);
+	}
     
     
 	public double getX() {
@@ -214,4 +236,19 @@ public class Princesa {
 		this.alto = alto;
 	}
 
+	public double getVelocidadX() {
+		return velocidadDesplazamiento;
+	}
+
+	public void setVelocidadX(double velocidadX) {
+		this.velocidadDesplazamiento = velocidadX;
+	}
+
+	public Proyectil getProyectil() {
+		return proyectil;
+	}
+
+	public void setProyectil(Proyectil proyectil) {
+		this.proyectil = proyectil;
+	}
 }

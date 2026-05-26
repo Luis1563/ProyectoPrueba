@@ -12,10 +12,10 @@ public class Juego extends InterfaceJuego
 	// El objeto Entorno que controla el tiempo y otros
 	private Entorno entorno;
     private Princesa princesa;
-	//private Enemigo enemigo;
 	//private Castillo castillo;
 	private Proyectil proyectil;
     private Isla[] islas;
+	private Enemigo[] enemigos;
 	// Variables y métodos propios de cada grupo
 	// ...
 	
@@ -31,19 +31,46 @@ public class Juego extends InterfaceJuego
 		// Inicializar lo que haga falta para el juego
 		// ...
 
+		this.enemigos = new Enemigo[10]; 
+    	this.enemigos = new Enemigo[6]; 
+		for (int i = 0; i < this.enemigos.length; i++) {
+			double xInicial;
+			int direccionBicho; // Tipo int, igual que en tu constructor
+			
+			// Altura al azar en el cielo
+			double yInicial = 80 + (Math.random() * 400); 
+			
+			if (i % 2 == 0) {
+				// Los pares nacen en la IZQUIERDA y van a la DERECHA
+				xInicial = -100 - (i * 200); 
+				direccionBicho = 1; 
+			} else {
+				// Los impares nacen en la DERECHA y van a la IZQUIERDA
+				xInicial = 1380 + (i * 200); 
+				direccionBicho = -1; 
+			}
+			
+			// Pasamos los 6 parámetros EXACTOS que te pide tu clase Enemigo:
+			// x, y, ancho, alto, velocidad, direccion
+			this.enemigos[i] = new Enemigo(xInicial, yInicial, 35, 35, 2.0, direccionBicho);
+		}
+
+
+
+
 		// Inicia el juego!
 		this.entorno.iniciar();
 	}
 
 	private Isla[] inicializarIslas() {
-		Isla[] misIslas = new Isla[20]; // Ejemplo con 10 islas
+		//Isla[] misIslas = new Isla[20]; // Ejemplo con 10 islas
         
         // 1. Islas de piso (fijas)
-		Isla[] misIslas1 = new Isla[20]; // Aumentamos el tamaño para tener más plataformas
+		Isla[] misIslas1 = new Isla[200]; // Aumentamos el tamaño para tener más plataformas
 	    int indice = 0;
 
 	    // 1. ISLAS DE PISO (Para que el jugador no caiga al inicio)
-	    for (int i = 0; i < 6; i++) {
+	    for (int i = 0; i < 20; i++) {
 	        misIslas1[indice] = new Isla(i * 250, entorno.alto() - 10, 200, 20);
 	        indice++;
 	    }
@@ -109,6 +136,11 @@ public class Juego extends InterfaceJuego
 			princesa = new Princesa(entorno.ancho() / 2, entorno.alto() / 2, 30, 50);
 			princesa.dibujar(entorno);
 		}
+
+		if(princesa.getProyectil()!=null) {
+			princesa.getProyectil().dibujar(entorno);			
+		}
+
 		// Dibujar princesa
 		// Dibujar islas
 		for (int i = 0; i < islas.length; i++) {
@@ -118,21 +150,74 @@ public class Juego extends InterfaceJuego
 			}
 		}
 
+
+		for (int i = 0; i < this.enemigos.length; i++) {
+			if (this.enemigos[i] != null) {
+				
+				// 1. Avanzan según su propia dirección (si es 1 suma X, si es -1 resta X)
+				double nuevaX = this.enemigos[i].getX() + (2.0 * this.enemigos[i].getDireccion());
+				
+				// 2. EFECTO SCROLL (Se arrastran con las teclas de tus compañeros)
+				/*if (entorno.estaPresionada(entorno.TECLA_DERECHA)) {
+					nuevaX -= 2; 
+				}
+				if (entorno.estaPresionada(entorno.TECLA_IZQUIERDA)) {
+					nuevaX += 2; 
+				}*/
+				
+				// Guardamos la posición en el objeto
+				this.enemigos[i].setX(nuevaX);
+				
+				// 3. Lo dibujamos
+				this.enemigos[i].dibujar(this.entorno);
+			}
+		}
+
+
+
 		//movimiento de la princesa
 
 		if(entorno.estaPresionada(entorno.TECLA_IZQUIERDA) && princesa.getX() - princesa.getAncho()/2 > 0) { //limitamos el movimiento para que no se salga de la pantalla
 			//if (princesa.colisionaPorIzquierda(islas)) {
 						
-			if (princesa.puedeMover(-5, 0, islas)) {
+			if (princesa.puedeMover(-princesa.getVelocidadX(), 0, islas)) {
 				princesa.moverIzquierda();
 			}
 		}
-		if(entorno.estaPresionada(entorno.TECLA_DERECHA) && princesa.getX() + princesa.getAncho()/2 < entorno.ancho()) {
-			//if (princesa.colisionaPorDerecha(islas)) {
-			if (princesa.puedeMover(5, 0, islas)) {
+		/*if(entorno.estaPresionada(entorno.TECLA_DERECHA) && princesa.getX() + princesa.getAncho()/2 < entorno.ancho()) {
+			double desplazamientoIslas = princesa.getVelocidadX()/2; // La velocidad a la que se mueven las islas es la mitad de la velocidad de desplazamiento de la princesa para un efecto de parallax
+			double dezplazamientoSuma = princesa.getVelocidadX() + desplazamientoIslas; // La suma del desplazamiento de la princesa y el desplazamiento de las islas para calcular el movimiento total
+			
+			if (princesa.puedeMover(dezplazamientoSuma, 0, islas)) { //usamos la suma del desplazamiento de la princesa y el desplazamiento de las islas para verificar si el movimiento total es posible sin colisiones
 				princesa.moverDerecha();
+				if(princesa.getX() > entorno.ancho() / 2) { // Solo mueve las islas si la princesa está más allá del centro de la pantalla
+					for (int i = 0; i < islas.length; i++) {
+						if (islas[i] != null && princesa.getX() > entorno.ancho() / 2) { // Solo mueve las islas si la princesa está más allá del centro de la pantalla
+						islas[i].mover(-desplazamientoIslas); //mueve cada isla en la dirección opuesta al movimiento de la princesa para simular desplazamiento del mapa
+						}
+					}
+				}
 			}
+		}*/
+
+		
+		if (entorno.estaPresionada(entorno.TECLA_DERECHA)) {
+			double limiteMovimiento = entorno.ancho() * 0.55; // La princesa puede moverse libremente hasta el 55% del ancho de la pantalla
+			if (princesa.getX() < limiteMovimiento && princesa.puedeMover(princesa.getVelocidadX(), 0, islas)) {
+				princesa.moverDerecha();
+    		}
+			else if (princesa.getX() >= limiteMovimiento && princesa.puedeMover(princesa.getVelocidadX(), 0, islas)) {
+        		// La princesa ya está cerca del borde, se queda fija y el mapa avanza
+        		for (int i = 0; i < islas.length; i++) {
+            		if (islas[i] != null) {
+                		islas[i].mover(-princesa.getVelocidadX() * 0.6); // Mueve las islas a la mitad de la velocidad de la princesa para un efecto de parallax
+            		}
+        		}
+    		}
 		}
+
+
+		//desplazamienmto del mapa
 		//if (entorno.estaPresionada(entorno.TECLA_ABAJO) && princesa.getY() + princesa.getAlto()/2 < entorno.alto()) {
 			//if (princesa.colisionaPorAbajo(islas)) {
 			//if (princesa.puedeMover(0, 5, islas)) {
@@ -154,20 +239,32 @@ public class Juego extends InterfaceJuego
 		}
 
 		// disparo con botón izquierdo solo si no hay proyectil activo
-		if (entorno.mousePresente() && entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO) && proyectil == null) {
-			double mouseX = entorno.mouseX();
+		if (entorno.mousePresente() && entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO) && princesa.getProyectil() == null) {
+			princesa.disparar(entorno.mouseX(), entorno.mouseY());
+			
+			/*double mouseX = entorno.mouseX();
 			double mouseY = entorno.mouseY();
-			proyectil = new Proyectil(princesa.getX(), princesa.getY(), 10, 10); //empieza en la misma x e y que la princesa
-			proyectil.dispararHacia(mouseX, mouseY); //dispara hacia la dirección del mouse
+			proyectil = new Proyectil(princesa.getX(), princesa.getY(), 10, mouseX, mouseY); //empieza en la misma x e y que la princesa
+			proyectil.dispararHacia(mouseX, mouseY); //dispara hacia la dirección del mouse*/
 		}
 
-		if (proyectil != null) { //si no es null (está activo), lo movemos y dibujamos
-			proyectil.mover();
-			proyectil.dibujar(entorno);
-			if (proyectil.estaFuera(entorno.ancho(), entorno.alto())) { // si sale de la pantalla, lo eliminamos y se vuelve null
-				proyectil = null;
+		if (princesa.getProyectil() != null) { //si no es null (está activo), lo movemos y dibujamos
+			princesa.getProyectil().mover();
+			princesa.getProyectil().dibujar(entorno);
+			if (princesa.getProyectil().estaFueraDePantalla(entorno)) { // si sale de la pantalla, lo eliminamos y se vuelve null
+				princesa.setProyectil(null);
 			}
 		}
+
+		/*if (princesa.getProyectil() != null) {
+			for (int i = 0; i < enemigos.length; i++) {
+				if (enemigos[i] != null && princesa.getProyectil().colisionaConEnemigo(enemigos[i])) {
+					princesa.setProyectil(null); // El proyectil desaparece al impactar
+					enemigos[i] = null; // El enemigo desaparece al ser impactado
+				}
+			}
+		}*/
+
 
 		
 		
