@@ -14,13 +14,12 @@ public class Princesa {
     private double velocidadDesplazamiento;
     private double gravedad;
     private double VelocidadMaximaDeCaida;
+	private boolean[] vidas;
+	private int vidasRestantes;
 
 	private Proyectil proyectil;
-	private Vida[] vidas;
-    //private Image imagen;
-    
-    
-	public Princesa(double x, double y, double ancho, double alto) {
+
+	public Princesa(double x, double y, double ancho, double alto, int vidasIniciales) {
 		this.x = x;
 		this.y = y;
 		this.ancho = ancho;
@@ -31,7 +30,12 @@ public class Princesa {
 		this.gravedad = 0.5;
 		this.VelocidadMaximaDeCaida = 8;
 		this.proyectil = null; // No hay proyectil activo al inicio
-		this.vidas = new Vida[]{new Vida(50, 50, 100, 20)}; // Crear una instancia de Vida
+
+		this.vidas = new boolean[vidasIniciales];
+		for (int i = 0; i < this.vidas.length; i++) {
+			this.vidas[i] = true;
+		}
+		this.vidasRestantes = vidasIniciales;
 		//this.imagen = imagen;
 	}
 
@@ -205,10 +209,49 @@ public class Princesa {
 	}
 
 
-	public static void dibujarVidas (Entorno entorno, Vida vidas) {
-
-		vidas.dibujar(entorno);
+	public void perderVida() {
+		/* if (vidasRestantes <= 0) {
+			return;
+		}*/
+		int indice = -1; // se usa para señalar el ultimo indice que estaba en true, para cambiarlo a false
+		for (int i = vidas.length - 1; i >= 0; i--) {
+			if (vidas[i] == true && indice == -1) {
+				indice = i; // Guardamos el índice del corazón que se perdió
+			}
+		}
+		if (indice != -1) {
+			vidas[indice] = false; // Cambia el último corazón en true a false
+			vidasRestantes--;
+		}
 	}
+
+	public boolean estaViva() {
+		return vidasRestantes > 0;
+	}
+
+	public void reiniciarPosicion(double x, double y) {
+		this.x = x;
+		this.y = y;
+		this.velocidadY = 0;
+	}
+
+	public void dibujarVidas(Entorno e) {
+		for (int i = 0; i < vidas.length; i++) {
+			Color color;
+			if (vidas[i] == true) {
+				color = Color.RED;
+			}
+			else {
+				color = Color.GRAY;
+			}
+
+			double x = 30 + i * 36; //36 porque el ancho del corazón es 30 y puse un espacio de 6 entre ellos
+			double y = 30;
+			e.dibujarRectangulo(x, y, 30, 30, 0, color);
+		}
+	}
+
+
     
     
 	public double getX() {
