@@ -18,6 +18,7 @@ public class Juego extends InterfaceJuego
 	private Princesa princesa;
 	//private Proyectil proyectil;
     private Isla[] islas;
+	private int islasPiso;
 	private Enemigo[] enemigos;
 	//private Item item; // Item que puede soltar el enemigo y recoger la princesa
 	private boolean juegoGanado; // boolean para pantalla ganadora
@@ -44,7 +45,8 @@ public class Juego extends InterfaceJuego
 		this.entorno = new Entorno(this, "baez-gomez-rivera-tp-p1", 1280, 720);
 		this.mostrandoInicio = true; //Pantalla de inicio
 		princesa = new Princesa(200, 100, 30, 80, 10, entorno);
-		this.islas = inicializarIslas();
+		this.islasPiso = 15;
+		this.islas = inicializarIslas(this.islasPiso);
 		this.velocidadMapa = 3;
 		this.enemigos = new Enemigo[20];
 		//this.item = null; // El item comienza como null, se asignará cuando un enemigo muera
@@ -95,20 +97,18 @@ public class Juego extends InterfaceJuego
 		this.entorno.iniciar();
 	}
 
-	private Isla[] inicializarIslas() {
+	private Isla[] inicializarIslas(int islasPisoParametro) {
 		
 		Isla[] islas = new Isla[500]; // cantidad maxima de islas que se pueden crear
 
-		int islasPiso = 40;
+		int islasPiso = islasPisoParametro;
 		//double islasFlotantes = 30;
 
 		// creamos todas las islas de piso
 		for (int i = 0; i < islasPiso; i++){
 			islas[i] = new Isla(i *250 , entorno.alto() - 10, 200, 20);
-		}
-		
-		// Accomodamos las islas para que solo se vean dentro de la pantalla
-		for (int i = 0; i < islasPiso; i++){
+			
+			// Accomodamos las islas para que solo se vean dentro de la pantalla
 			islas[i].setX(islas[i].getX() + islas[i].getAncho()/2);
 			//islas[i].setX(islas[i].bordeIzquierdo());
 			
@@ -120,6 +120,20 @@ public class Juego extends InterfaceJuego
 				this.castillo.setY(this.castillo.getY() - this.castillo.getAlto()/2);
 			}
 		}
+		
+		// Accomodamos las islas para que solo se vean dentro de la pantalla
+		/*for (int i = 0; i < islasPiso; i++){
+			islas[i].setX(islas[i].getX() + islas[i].getAncho()/2);
+			//islas[i].setX(islas[i].bordeIzquierdo());
+			
+			if (i == islasPiso -1) { // Si es la última isla de piso, colocamos el castillo sobre ella
+				double x = islas[i].getX();
+				double y = islas[i].getY() - islas[i].getAlto() / 2; // Coloca el castillo justo encima de la isla
+				
+				this.castillo = new Castillo(x, y, 160, 200);
+				this.castillo.setY(this.castillo.getY() - this.castillo.getAlto()/2);
+			}
+		}*/
 
 		int indice = 1;
 		for (int i = islasPiso; i < (islas.length); i++){
@@ -172,6 +186,8 @@ public class Juego extends InterfaceJuego
 			}
 			indice+=1;
 		}
+		return islas;
+	}
 
 
 		/*Isla[] islasPiso = new Isla[islas.length/4];
@@ -240,8 +256,8 @@ public class Juego extends InterfaceJuego
 			indice3 += 1;
 		}*/
 
-		return islas;
-	}
+		//return islas;
+	//}
 
 
 
@@ -454,7 +470,7 @@ public class Juego extends InterfaceJuego
 					// Si la princesa se puede mover y está en el limite de movimiento
 					else if (princesa.puedeMover(princesa.getVelocidadX(), 0, islas) && princesa.estaEnlimiteMovimiento(princesa.getVelocidadX(), 0)){
 						// Si el castillo no está dentro de la pantalla
-						if ((castillo.bordeDerecho() > entorno.ancho())){
+						if ((/*castillo.bordeDerecho()*/ this.islas[islasPiso-1].bordeDerecho() > entorno.ancho())){
 							// Movemos el castillo y los elementos en pantalla en esta parte para hacerlo solo cuando se aprieta la tecla derecha
 							this.castillo.mover(-this.velocidadMapa);
 							for (int i = 0; i < islas.length; i++) {
