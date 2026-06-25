@@ -71,4 +71,7 @@ public class Isla {
 		this.x += desplazamiento;
 	}
 
+
+	
+
 }
